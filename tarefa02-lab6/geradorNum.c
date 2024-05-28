@@ -15,28 +15,40 @@ int ehPrimo(long long int n) {
     return 1;
 }
 
-void gerarNumeros(const char* filename, long long int N, int minValue, int maxValue) {
+void gerarNumeros(const char* filename, long long int N, int maxValue) {
+    long long int primos = 0; // variavel para guardar a qtd de primos encontrados
+    size_t ret; // retorno da funcao de escrita no arquivo de saida
+
     FILE *file = fopen(filename, "wb");
     if (!file) {
         perror("Erro ao abrir o arquivo");
         exit(EXIT_FAILURE);
     }
-    long long int primos = 0;
+    ret = fwrite(&N, sizeof(long int), 1, file);
+    if(!ret) {fprintf(stderr, "\nERRO -- Nao foi possivel concluir operacao de escrita!\n");}
+
+     // imprime tamanho da sequencia N
+    printf("\nTAMANHO DA SEQUENCIA (N): %ld\n", N);
+   
     srand(time(NULL));
-    fwrite(&N, sizeof(long long int), 1, file);
-    for (int i = 0; i < N; i++) {
-        int number = minValue + rand() % (maxValue - minValue + 1);
-        fwrite(&number, sizeof(int), 1, file);
+
+    for (long long int i = 0; i < N; i++) {
+        int number = (rand() % maxValue);
         if(ehPrimo(number)) primos++;
+         ret = fwrite(&number, sizeof(long int), 1, file);
+        if(!ret) {fprintf(stderr, "\nERRO -- Nao foi possivel concluir operacao de escrita!\n");}
+   
     }
-     fwrite(-1, sizeof(int), 1, file);
-    fwrite(&primos, sizeof(int), 1, file);
-    printf("Foram encontrados %lld primos\n", primos);
+    ret = fwrite(&primos, sizeof(long int), 1, file);
+    if(!ret) {fprintf(stderr, "\nERRO -- Nao foi possivel concluir operacao de escrita!\n");}
+   
+    printf("FORAM ENCONTRADOS %lld PRIMOS.\n", primos);
     fclose(file);
-    printf("Arquivo gerado com sucesso: %s\n", filename);
+    printf("ARQUIVO GERADO COM SUCESSO: %s\n", filename);
 }
 
 int main(int argc, char *argv[]) {
+    // aqui abrimos o arquivo .bin
     if (argc != 3) {
         fprintf(stderr, "Uso: %s <nome_arquivo> <quantidade_numeros>\n", argv[0]);
         return EXIT_FAILURE;
@@ -44,10 +56,9 @@ int main(int argc, char *argv[]) {
 
     const char* filename = argv[1];
     long long int N = atoi(argv[2]);
-    int minValue = 1;
     int maxValue = 1000;
 
-    gerarNumeros(filename, N, minValue, maxValue);
+    gerarNumeros(filename, N, maxValue);
 
     return EXIT_SUCCESS;
 }
